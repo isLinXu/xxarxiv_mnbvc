@@ -3,12 +3,14 @@ import requests
 import os
 import logging
 from tqdm import tqdm
+import argparse
 
-# 配置日志记录
+# Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+
 def read_csv(file_path):
-    """读取 CSV 文件并返回 DataFrame"""
+    """Read CSV file and return DataFrame"""
     try:
         df = pd.read_csv(file_path)
         logging.info(f"Successfully read CSV file: {file_path}")
@@ -19,7 +21,7 @@ def read_csv(file_path):
 
 
 def create_download_dir(directory):
-    """创建下载目录"""
+    """Create download directory"""
     try:
         os.makedirs(directory, exist_ok=True)
         logging.info(f"Download directory created: {directory}")
@@ -28,12 +30,12 @@ def create_download_dir(directory):
 
 
 def sanitize_filename(filename):
-    """生成合法的文件名"""
+    """Generate a valid filename"""
     return filename.replace('/', '_').replace('\\', '_')
 
 
 def download_file(url, file_path):
-    """下载文件并保存到指定路径"""
+    """Download file and save to specified path"""
     try:
         response = requests.get(url)
         if response.status_code == 200:
@@ -47,7 +49,7 @@ def download_file(url, file_path):
 
 
 def main(csv_file, download_dir):
-    """主函数"""
+    """Main function"""
     df = read_csv(csv_file)
     if df is None:
         return
@@ -65,8 +67,11 @@ def main(csv_file, download_dir):
 
 
 if __name__ == "__main__":
-    # 配置 CSV 文件路径和下载目录
-    csv_file = './arxiv_download/biorxiv_download.csv'  # 替换为你的 CSV 文件路径
-    download_dir = 'biorxiv'
+    # Use argparse to parse command line arguments
+    parser = argparse.ArgumentParser(description="Batch download files from a CSV file.")
+    parser.add_argument('csv_file', type=str, help="Path to the CSV file containing download links.")
+    parser.add_argument('download_dir', type=str, help="Directory to save the downloaded files.")
 
-    main(csv_file, download_dir)
+    args = parser.parse_args()
+
+    main(args.csv_file, args.download_dir)
